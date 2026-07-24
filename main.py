@@ -35,9 +35,9 @@ for query in busquedas:
     except Exception as e:
         print(f" Advertencia en búsqueda '{query}': {e}")
 
-print("\n Analizando y filtrando hallazgos con la IA (Llama 3.3)...")
+print("\n Analizando y filtrando hallazgos con la IA...")
 
-# 3. Analizar información vía OpenRouter con Llama 3.3 (Gratis)
+# 3. Analizar información vía OpenRouter usando un modelo 100% GRATUITO
 prompt = f"""
 Actúa como un Headhunter de Talento Académico Superior. Analiza la siguiente información obtenida de la web sobre vacantes y convocatorias universitarias:
 
@@ -63,8 +63,9 @@ try:
         api_key=api_key,
     )
 
+    # Usamos Llama 3.1 8B Instruct que es totalmente gratuito en OpenRouter
     response = client.chat.completions.create(
-        model="meta-llama/llama-3.3-70b-instruct:free",
+        model="meta-llama/llama-3.1-8b-instruct:free",
         messages=[
             {"role": "user", "content": prompt}
         ]
