@@ -35,9 +35,9 @@ for query in busquedas:
     except Exception as e:
         print(f" Advertencia en búsqueda '{query}': {e}")
 
-print("\n Analizando y filtrando hallazgos con la IA...")
+print("\n Analizando y filtrando hallazgos con la IA (Llama 3.3)...")
 
-# 3. Analizar información vía OpenRouter
+# 3. Analizar información vía OpenRouter con Llama 3.3 (Gratis)
 prompt = f"""
 Actúa como un Headhunter de Talento Académico Superior. Analiza la siguiente información obtenida de la web sobre vacantes y convocatorias universitarias:
 
