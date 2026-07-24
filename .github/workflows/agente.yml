@@ -8,7 +8,7 @@ on:
     # NOTA: En 4 días, cambia la línea de arriba por esta para que sea cada 15 días:
     # - cron: '0 8 1,15 * *'
 
-  workflow_dispatch: # Permite probarlo manualmente cuando tú quieras
+  workflow_dispatch: # Permite probarlo manualmente con un botón cuando tú quieras
 
 jobs:
   ejecutar-agente:
@@ -29,5 +29,5 @@ jobs:
 
       - name: Ejecutar Agente
         env:
-          GEMINI_API_KEY: ${{ secrets.GAKU2 }}
+          GEMINI_API_KEY: ${{ secrets.GAK_U2 }}
         run: python main.py
