@@ -7,18 +7,17 @@ print("==================================================")
 print(" AGENTE CAZADOR DE EMPLEO - EJECUCIÓN AUTOMÁTICA ")
 print("==================================================")
 
-# 1. Verificar si la API Key existe en los Secrets de GitHub
+# 1. Verificar si la API Key existe
 api_key = os.environ.get("GEMINI_API_KEY")
 
 if not api_key:
     print("\n ERROR CRÍTICO: No se encontró la variable GEMINI_API_KEY.")
-    print("Asegúrate de haberla creado en Settings > Secrets and variables > Actions.")
     sys.exit(1)
 
 print(" API Key detectada correctamente.")
 print(" Buscando oportunidades docentes en la web...")
 
-# 2. Ejecutar la búsqueda
+# 2. Ejecutar la búsqueda con el modelo actualizado
 try:
     client = genai.Client(api_key=api_key)
 
@@ -40,7 +39,7 @@ try:
     """
 
     response = client.models.generate_content(
-        model='gemini-2.5-flash',
+        model='gemini-2.0-flash',
         contents=prompt,
         config=types.GenerateContentConfig(
             tools=[types.Tool(google_search=types.GoogleSearch())]
@@ -49,7 +48,7 @@ try:
 
     print("\n--- RESULTADOS ENCONTRADOS HOY ---")
     print(response.text)
-    print("\n Ejecucción finalizada con éxito.")
+    print("\n Ejecución finalizada con éxito.")
 
 except Exception as e:
     print(f"\n ERROR AL CONSULTAR LA API DE GEMINI: {e}")
