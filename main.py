@@ -63,18 +63,24 @@ Formato de salida:
 Entrega una tabla Markdown con: Universidad y País, Nombre de la Vacante/Asignatura, Nivel Académico, Requisitos Clave y Enlace Directo. Si no hay convocatorias específicas activas en los extractos, resume las bolsas de trabajo permanentes o portales de empleo de las universidades públicas/de prestigio encontradas.
 """
 
-# Lista de respaldos con modelos 100% gratuitos
-modelos_gratuitos = [
-    "google/gemini-2.0-flash-exp:free",
-    "deepseek/deepseek-r1:free",
-    "qwen/qwen-2.5-72b-instruct:free",
-    "mistralai/mistral-small-24b-instruct-2501:free"
-]
-
+# Configuración del cliente con los encabezados obligatorios de OpenRouter
 client = OpenAI(
     base_url="https://openrouter.ai/api/v1",
     api_key=api_key,
+    default_headers={
+        "HTTP-Referer": "https://github.com",
+        "X-Title": "Agente Cazador de Empleo"
+    }
 )
+
+# openrouter/auto selecciona de forma dinámica el modelo gratuito activo en el momento
+modelos_gratuitos = [
+    "openrouter/auto",
+    "google/gemini-2.0-flash-exp:free",
+    "meta-llama/llama-3.3-70b-instruct:free",
+    "deepseek/deepseek-r1:free",
+    "qwen/qwen-2.5-72b-instruct:free"
+]
 
 exito = False
 
@@ -91,8 +97,8 @@ for modelo in modelos_gratuitos:
         exito = True
         break
     except Exception as e:
-        print(f" El modelo {modelo} no estuvo disponible. Intentando con el siguiente...")
+        print(f" El modelo {modelo} no respondió ({e}). Intentando con el siguiente...")
 
 if not exito:
-    print("\n ERROR CRÍTICO: Ninguno de los modelos gratuitos de la lista respondió.")
+    print("\n ERROR CRÍTICO: Ninguno de los modelos respondió.")
     sys.exit(1)
