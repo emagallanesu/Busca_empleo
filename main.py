@@ -1,6 +1,12 @@
 import os
 import sys
-from duckduckgo_search import DDGS
+
+# Importación blindada a prueba de fallos
+try:
+    from ddgs import DDGS
+except ImportError:
+    from duckduckgo_search import DDGS
+
 from openai import OpenAI
 
 print("==================================================")
@@ -18,7 +24,7 @@ print(" Buscando convocatorias docentes en la web...")
 
 # 2. Rastrear la web gratis con DuckDuckGo
 busquedas = [
-    "convocatoria docente virtual universidad posgrado maestria doctorado",
+    "convocatoria docente virtual universidad posgrado maestria doctorado 2026",
     "vacante profesor en linea universidad publica mexico costa rica espana colombia chile",
     "bolsa de trabajo docente investigador remoto universidad"
 ]
@@ -37,7 +43,7 @@ for query in busquedas:
 
 print("\n Analizando y filtrando hallazgos con la IA...")
 
-# 3. Analizar información vía OpenRouter usando un modelo 100% GRATUITO
+# 3. Analizar información vía OpenRouter
 prompt = f"""
 Actúa como un Headhunter de Talento Académico Superior. Analiza la siguiente información obtenida de la web sobre vacantes y convocatorias universitarias:
 
@@ -57,24 +63,36 @@ Formato de salida:
 Entrega una tabla Markdown con: Universidad y País, Nombre de la Vacante/Asignatura, Nivel Académico, Requisitos Clave y Enlace Directo. Si no hay convocatorias específicas activas en los extractos, resume las bolsas de trabajo permanentes o portales de empleo de las universidades públicas/de prestigio encontradas.
 """
 
-try:
-    client = OpenAI(
-        base_url="https://openrouter.ai/api/v1",
-        api_key=api_key,
-    )
+# Lista de respaldos con modelos 100% gratuitos
+modelos_gratuitos = [
+    "google/gemini-2.0-flash-exp:free",
+    "deepseek/deepseek-r1:free",
+    "qwen/qwen-2.5-72b-instruct:free",
+    "mistralai/mistral-small-24b-instruct-2501:free"
+]
 
-    # Usamos Llama 3.1 8B Instruct que es totalmente gratuito en OpenRouter
-    response = client.chat.completions.create(
-        model="meta-llama/llama-3.1-8b-instruct:free",
-        messages=[
-            {"role": "user", "content": prompt}
-        ]
-    )
+client = OpenAI(
+    base_url="https://openrouter.ai/api/v1",
+    api_key=api_key,
+)
 
-    print("\n--- RESULTADOS ENCONTRADOS HOY ---")
-    print(response.choices[0].message.content)
-    print("\n Ejecución finalizada con éxito.")
+exito = False
 
-except Exception as e:
-    print(f"\n ERROR EN OPENROUTER: {e}")
+for modelo in modelos_gratuitos:
+    try:
+        print(f" Probando modelo: {modelo}...")
+        response = client.chat.completions.create(
+            model=modelo,
+            messages=[{"role": "user", "content": prompt}]
+        )
+        print("\n--- RESULTADOS ENCONTRADOS HOY ---")
+        print(response.choices[0].message.content)
+        print("\n Ejecución finalizada con éxito.")
+        exito = True
+        break
+    except Exception as e:
+        print(f" El modelo {modelo} no estuvo disponible. Intentando con el siguiente...")
+
+if not exito:
+    print("\n ERROR CRÍTICO: Ninguno de los modelos gratuitos de la lista respondió.")
     sys.exit(1)
