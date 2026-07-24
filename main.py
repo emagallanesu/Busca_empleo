@@ -1,24 +1,24 @@
 import os
 import sys
 from duckduckgo_search import DDGS
-from google import genai
+from openai import OpenAI
 
 print("==================================================")
-print(" AGENTE CAZADOR DE EMPLEO - EJECUCIÓN AUTOMÁTICA ")
+print(" AGENTE CAZADOR DE EMPLEO (MOTOR OPENROUTER) ")
 print("==================================================")
 
-# 1. Verificar que la API Key de Gemini esté presente
-api_key = os.environ.get("GEMINI_API_KEY")
+# 1. Verificar API Key de OpenRouter
+api_key = os.environ.get("OPENROUTER_API_KEY")
 if not api_key:
-    print("\n ERROR CRÍTICO: No se encontró la variable GEMINI_API_KEY.")
+    print("\n ERROR CRÍTICO: No se encontró la variable OPENROUTER_API_KEY en GitHub Secrets.")
     sys.exit(1)
 
 print(" API Key detectada correctamente.")
-print(" Buscando convocatorias en la web...")
+print(" Buscando convocatorias docentes en la web...")
 
-# 2. Rastrear la web de forma gratuita con DuckDuckGo
+# 2. Rastrear la web gratis con DuckDuckGo
 busquedas = [
-    "convocatoria docente virtual universidad posgrado maestria doctorado 2026",
+    "convocatoria docente virtual universidad posgrado maestria doctorado",
     "vacante profesor en linea universidad publica mexico costa rica espana colombia chile",
     "bolsa de trabajo docente investigador remoto universidad"
 ]
@@ -37,7 +37,7 @@ for query in busquedas:
 
 print("\n Analizando y filtrando hallazgos con la IA...")
 
-# 3. Mandar la información recopilada a Gemini para análisis
+# 3. Analizar información vía OpenRouter
 prompt = f"""
 Actúa como un Headhunter de Talento Académico Superior. Analiza la siguiente información obtenida de la web sobre vacantes y convocatorias universitarias:
 
@@ -54,20 +54,26 @@ Filtros estrictos:
 - Idioma: Español.
 
 Formato de salida:
-Entrega una tabla Markdown con: Universidad y País, Nombre de la Vacante/Asignatura, Nivel Académico, Requisitos Clave y Enlace Directo. Si no hay convocatorias específicas activas, incluye los enlaces a las bolsas de trabajo permanentes de PDI de universidades de prestigio identificadas.
+Entrega una tabla Markdown con: Universidad y País, Nombre de la Vacante/Asignatura, Nivel Académico, Requisitos Clave y Enlace Directo. Si no hay convocatorias específicas activas en los extractos, resume las bolsas de trabajo permanentes o portales de empleo de las universidades públicas/de prestigio encontradas.
 """
 
 try:
-    client = genai.Client(api_key=api_key)
-    response = client.models.generate_content(
-        model='gemini-2.0-flash',
-        contents=prompt
+    client = OpenAI(
+        base_url="https://openrouter.ai/api/v1",
+        api_key=api_key,
+    )
+
+    response = client.chat.completions.create(
+        model="meta-llama/llama-3.3-70b-instruct:free",
+        messages=[
+            {"role": "user", "content": prompt}
+        ]
     )
 
     print("\n--- RESULTADOS ENCONTRADOS HOY ---")
-    print(response.text)
+    print(response.choices[0].message.content)
     print("\n Ejecución finalizada con éxito.")
 
 except Exception as e:
-    print(f"\n ERROR EN GEMINI: {e}")
+    print(f"\n ERROR EN OPENROUTER: {e}")
     sys.exit(1)
